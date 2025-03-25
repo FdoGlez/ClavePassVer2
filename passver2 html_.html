@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Contraseñas Seguras</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Generador de Contraseñas Seguras</h1>
+        <div class="form-group">
+            <label for="passwordLength">Longitud de la contraseña:</label>
+            <input type="number" id="passwordLength" value="12" min="8">
+        </div>
+        <div class="form-group">
+            <label for="includeUppercase">Incluir mayúsculas:</label>
+            <input type="checkbox" id="includeUppercase" checked>
+        </div>
+        <div class="form-group">
+            <label for="includeLowercase">Incluir minúsculas:</label>
+            <input type="checkbox" id="includeLowercase" checked>
+        </div>
+        <div class="form-group">
+            <label for="includeNumbers">Incluir números:</label>
+            <input type="checkbox" id="includeNumbers" checked>
+        </div>
+        <div class="form-group">
+            <label for="includeSymbols">Incluir símbolos:</label>
+            <input type="checkbox" id="includeSymbols" checked>
+        </div>
+        <button id="generateBtn">Generar Contraseña</button>
+        <div class="form-group">
+            <label for="password">Contraseña generada:</label>
+            <input type="text" id="password" readonly>
+        </div>
+        <button id="evaluateBtn">Evaluar Contraseña</button>
+        <div id="evaluation"></div>
+        <div id="explanation"></div>
+        <div id="bestPractices">
+            <h2>Buenas Prácticas de Contraseñas</h2>
+            <ul>
+                <li>Usa contraseñas únicas para cada cuenta.</li>
+                <li>No reutilices contraseñas.</li>
+                <li>Considera usar un administrador de contraseñas.</li>
+                <li>Activa la autenticación de dos factores (2FA) siempre que sea posible.</li>
+                <li>Mantén tu software actualizado.</li>
+            </ul>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="number"] {
+    width: calc(100% - 12px);
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#evaluation, #explanation {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+#evaluation.strong {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+#evaluation.medium {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+#evaluation.weak {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+#bestPractices {
+    margin-top: 20px;
+}
+
+#bestPractices ul {
+    list-style-type: disc;
+    margin-left: 20px;
+}
+
+const passwordLength = document.getElementById('passwordLength');
+const includeUppercase = document.getElementById('includeUppercase');
+const includeLowercase = document.getElementById('includeLowercase');
+const includeNumbers = document.getElementById('includeNumbers');
+const includeSymbols = document.getElementById('includeSymbols');
+const generateBtn = document.getElementById('generateBtn');
+const passwordInput = document.getElementById('password');
+const evaluateBtn = document.getElementById('evaluateBtn');
+const evaluationDiv = document.getElementById('evaluation');
+const explanationDiv = document.getElementById('explanation');
+
+generateBtn.addEventListener('click', () => {
+    const length = parseInt(passwordLength.value);
+    const useUppercase = includeUppercase.checked;
+    const useLowercase = includeLowercase.checked;
+    const useNumbers = includeNumbers.checked;
+    const useSymbols = includeSymbols.checked;
+
+    const password = generatePassword(length, useUppercase, useLowercase, useNumbers, useSymbols);
+    passwordInput.value = password;
+});
+
+evaluateBtn.addEventListener('click', () => {
+    const password = passwordInput.value;
+    const result = evaluatePassword(password);
+    evaluationDiv.textContent = `Fortaleza de la contraseña: ${result.strength}`;
+    evaluationDiv.className = result.strength;
+    explanationDiv.textContent = `Explicación: ${result.explanation}`;
+});
+
+function generatePassword(length, useUppercase, useLowercase, useNumbers, useSymbols) {
+    let charset = '';
+    if (useUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    if (useLowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
+    if (useNumbers) charset += '0123456789';
+    if (useSymbols) charset += '!@#$%^&*()_+~`|}{[]\:;?><,./-=';
+
+    let password = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length);
+        password += charset[randomIndex];
+    }
+    return password;
+}
+
+function evaluatePassword(password) {
+    const length = password.length;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumbers = /[0-9]/.test(password);
+    const hasSymbols = /[!@#$%^&*()_+~`|}{[\]\:;?><,./-=]/.test(password);
+
+    let strength = 'weak';
+    let explanation = 'Contraseña muy débil.';
+
+    if (length >= 12 && hasUppercase && hasLowercase && hasNumbers && hasSymbols) {
+        strength = 'strong';
+        explanation = 'Contraseña muy fuerte.';
+    } else if (length >= 8 && (hasUppercase || hasLowercase) && hasNumbers && hasSymbols) {
+        strength = 'medium';
+        explanation = 'Contraseña de fortaleza media.';
+    }
+
+    return { strength, explanation };
+}
